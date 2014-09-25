@@ -1,0 +1,23 @@
+#!/bin/bash
+
+version=$1
+
+if [ -e /opt/vyatta/etc/aws_ec2 ]
+then
+	if eval "$UNION"; then
+		# UNION case
+		(
+			echo "# PV-GRUB menu.lst generated for AWS AMI by $0 at `date`"
+			echo "default=0"
+			echo "timeout=1"
+			echo
+			echo -e "title VyOS $version AWS EC2 (hvc0 console)"
+			echo -e "\troot (hd0)"
+			echo -e "\tkernel /boot/$version/vmlinuz boot=live vyatta-union=/boot/$version console=hvc0 root=/dev/xvd1"
+			echo -e "\tinitrd /boot/$version/initrd.img"
+		) > /boot/grub/menu.lst
+	else
+		echo "Non-union VyOS install in AMI detected. This isn't supported. Raise an issue report."
+		exit 1
+	fi
+fi
